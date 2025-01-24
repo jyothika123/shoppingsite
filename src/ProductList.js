@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { products } from "./data"; // Assuming you have a `data.js` file with product info.
 
@@ -7,7 +7,7 @@ function ProductList() {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
-  
+
   // State to manage quantity for each product
   const [quantities, setQuantities] = useState(
     products.reduce((acc, product) => {
@@ -16,12 +16,32 @@ function ProductList() {
     }, {})
   );
 
+  // Track which products are already in the cart
+  const [addedToCart, setAddedToCart] = useState(
+    products.reduce((acc, product) => {
+      acc[product.id] = false; // Initially, no product is added
+      return acc;
+    }, {})
+  );
+
+  // Update the cart in localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    // Sync addedToCart with cart after every change
+    const newAddedToCart = products.reduce((acc, product) => {
+      acc[product.id] = cart.some((item) => item.id === product.id);
+      return acc;
+    }, {});
+    setAddedToCart(newAddedToCart);
+  }, [cart]);
+
   const addToCart = (product, quantity) => {
     if (quantity <= 0) return; // Prevent adding 0 or negative quantity
     
     const updatedProduct = { ...product, quantity };
     const existingProduct = cart.find((item) => item.id === product.id);
-    
+
     if (existingProduct) {
       // Update quantity if product is already in the cart
       const updatedCart = cart.map((item) =>
@@ -30,12 +50,10 @@ function ProductList() {
           : item
       );
       setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {
       // Add new product with selected quantity
       const updatedCart = [...cart, updatedProduct];
       setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
   };
 
@@ -72,17 +90,18 @@ function ProductList() {
               placeholder="Quantity"
             />
             
+            {/* Add to Cart Button */}
             <button
               onClick={() => addToCart(product, quantities[product.id] || 1)} // Use per-product quantity
-              className="mt-4 px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+              className={`mt-4 px-6 py-2 rounded-full ${addedToCart[product.id] ? "bg-green-600" : "bg-blue-600"} text-white hover:bg-blue-700`}
             >
-              Add to Cart
+              {addedToCart[product.id] ? "Added to Cart" : "Add to Cart"}
             </button>
 
-            {/* Link to product details */}
+            {/* View Details Button (distinct design) */}
             <Link
               to={`/product/${product.id}`}
-              className="text-blue-600 mt-4 inline-block"
+              className={`mt-4 inline-block text-center py-2 px-6 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white`}
             >
               View Details
             </Link>
