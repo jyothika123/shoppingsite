@@ -10,11 +10,13 @@ import { CartProvider } from "./CartContext";
 import ProductDetails from "./ProductDetails";
 import { AuthProvider } from "./context/AuthContext";  // Import the authentication provider
 import Login from "./components/Login";  // Import the login component
+import { AccountProvider } from './context/AccountContext';
 
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      
+      <AuthProvider><AccountProvider>
         <CartProvider>
           <Header />
           <div className="container mx-auto p-6">
@@ -27,8 +29,10 @@ function App() {
               <Route path="/comments" element={<Comments />} />
             </Routes>
           </div>
-        </CartProvider>
+        </CartProvider> </AccountProvider>
       </AuthProvider>
+     
+
     </Router>
   );
 }

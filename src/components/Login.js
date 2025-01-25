@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
-  const { user, login, logout } = useAuth();
+  const { user, login, logout, error } = useAuth();
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    if (username.trim()) {
-      login(username);
+    if (username.trim() && password.trim()) {
+      login(username, password);
     }
   };
 
@@ -24,14 +25,22 @@ function Login() {
           </button>
         </div>
       ) : (
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col space-y-4">
           <input
             type="text"
-            placeholder="Enter your name"
+            placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="border rounded p-2 w-full"
+            className="border rounded p-2"
           />
+          <input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border rounded p-2"
+          />
+          {error && <p className="text-red-500">{error}</p>}
           <button
             onClick={handleLogin}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

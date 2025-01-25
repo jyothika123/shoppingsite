@@ -1,27 +1,33 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 
-// Create authentication context
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);  // null = anonymous shopping
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
-  const login = (username) => {
-    setUser(username);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+
+  const login = (username, password) => {
+    // Simulate login (you can replace this with real authentication logic)
+    if (username === "test" && password === "123") {
+      setUser(username);
+      setError(null);
+    } else {
+      setError("Invalid credentials");
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, error }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-// Custom hook for easy access to authentication context
-export function useAuth() {
-  return useContext(AuthContext);
-}
+};

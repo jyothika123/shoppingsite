@@ -1,47 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function Comments() {
-  const [comment, setComment] = useState("");
+function CommentsPage() {
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
   const [rating, setRating] = useState(1);
   const [photo, setPhoto] = useState(null);
-  const [commentsList, setCommentsList] = useState([]);
 
-  const handleCommentChange = (e) => {
-    setComment(e.target.value);
-  };
+  // Load comments from localStorage when component mounts
+  useEffect(() => {
+    const storedComments = JSON.parse(localStorage.getItem("comments")) || [];
+    setComments(storedComments);
+  }, []);
 
-  const handleRatingChange = (e) => {
-    setRating(e.target.value);
-  };
-
-  const handlePhotoChange = (e) => {
-    setPhoto(e.target.files[0]);
-  };
+  // Save comments to localStorage whenever they change
+  useEffect(() => {
+    if (comments.length > 0) {
+      localStorage.setItem("comments", JSON.stringify(comments));
+    }
+  }, [comments]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (comment.trim()) {
-      const newComment = {
-        comment,
-        rating,
-        photo,
-      };
-      setCommentsList([newComment, ...commentsList]);
-      setComment("");
-      setRating(1);
-      setPhoto(null);
+    if (!newComment.trim()) {
+      alert("Comment cannot be empty!");
+      return;
+    }
+
+    const newEntry = {
+      text: newComment,
+      rating,
+      photo,
+      date: new Date().toLocaleString(),
+    };
+
+    // Update comments state
+    setComments([newEntry, ...comments]);
+
+    // Reset input fields
+    setNewComment("");
+    setRating(1);
+    setPhoto(null);
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setPhoto(reader.result); // Convert image to Base64
+      reader.readAsDataURL(file);
     }
   };
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Comments</h1>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <h1 className="text-3xl font-bold mb-6">Product Comments</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <textarea
           className="w-full border rounded p-2"
           placeholder="Write your comment here..."
-          value={comment}
-          onChange={handleCommentChange}
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
         ></textarea>
 
         <div className="flex items-center space-x-4">
@@ -49,52 +68,48 @@ function Comments() {
           <select
             className="border rounded p-2"
             value={rating}
-            onChange={handleRatingChange}
+            onChange={(e) => setRating(e.target.value)}
           >
-            {[1, 2, 3, 4, 5].map((rate) => (
-              <option key={rate} value={rate}>
-                {rate} Star{rate > 1 ? "s" : ""}
+            {[1, 2, 3, 4, 5].map((star) => (
+              <option key={star} value={star}>
+                {star} Star{star > 1 ? "s" : ""}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="space-y-2">
+        <div>
           <label className="font-semibold">Upload a photo (optional):</label>
-          <input
-            type="file"
-            accept="image/*"
-            className="border rounded p-2"
-            onChange={handlePhotoChange}
-          />
+          <input type="file" accept="image/*" onChange={handlePhotoChange} />
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Submit Comment
         </button>
       </form>
 
       <div className="mt-6">
-        <h2 className="text-2xl font-bold mb-4">User Comments</h2>
-        {commentsList.length === 0 ? (
-          <p className="text-gray-600">No comments yet. Be the first to comment!</p>
+        <h2 className="text-2xl font-bold mb-4">All Comments</h2>
+        {comments.length === 0 ? (
+          <p>No comments yet. Be the first to comment!</p>
         ) : (
-          commentsList.map((item, index) => (
-            <div key={index} className="border p-4 mb-4 rounded">
-              <div className="flex items-center space-x-2 mb-2">
-                <span className="font-semibold">Rating:</span>
-                <span>{item.rating} Star{item.rating > 1 ? "s" : ""}</span>
+          comments.map((comment, index) => (
+            <div key={index} className="border rounded p-4 mb-4">
+              <div className="flex justify-between items-center">
+                <span>{comment.rating} Star{comment.rating > 1 ? "s" : ""}</span>
               </div>
-              <p>{item.comment}</p>
-              {item.photo && (
-                <div className="mt-2">
-                  <img
-                    src={URL.createObjectURL(item.photo)}
-                    alt="Uploaded"
-                    className="w-32 h-32 object-cover mt-2"
-                  />
-                </div>
+              <p>{comment.text}</p>
+              {comment.photo && (
+                <img
+                  src={comment.photo}
+                  alt="User uploaded"
+                  className="w-32 h-32 object-cover mt-2"
+                />
               )}
+              <span className="text-sm text-gray-500">{comment.date}</span>
             </div>
           ))
         )}
@@ -103,4 +118,4 @@ function Comments() {
   );
 }
 
-export default Comments;
+export default CommentsPage;
