@@ -1,5 +1,5 @@
 import React from "react";
-
+ 
 function Account() {
   return (
     <div className="container mx-auto p-6">
@@ -28,5 +28,5 @@ function Account() {
     </div>
   );
 }
-
+ 
 export default Account;

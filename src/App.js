@@ -8,18 +8,27 @@ import Account from "./Account";
 import Comments from "./Comments";
 import { CartProvider } from "./CartContext";
 import ProductDetails from "./ProductDetails";
+import { AuthProvider } from "./context/AuthContext";  // Import the authentication provider
+import Login from "./components/Login";  // Import the login component
 
 function App() {
   return (
     <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<ProductList />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<ShoppingCart />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/comments" element={<Comments />} />
-      </Routes>
+      <AuthProvider>
+        <CartProvider>
+          <Header />
+          <div className="container mx-auto p-6">
+            <Login />  {/* Login element appears on every page */}
+            <Routes>
+              <Route path="/" element={<ProductList />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/cart" element={<ShoppingCart />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/comments" element={<Comments />} />
+            </Routes>
+          </div>
+        </CartProvider>
+      </AuthProvider>
     </Router>
   );
 }
@@ -31,9 +40,7 @@ if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <CartProvider>
-        <App />
-      </CartProvider>
+      <App />
     </React.StrictMode>
   );
 } else {
