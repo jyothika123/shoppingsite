@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "./context/AuthContext"; // Import the authentication context
 
 function CommentsPage() {
+  const { isLoggedIn } = useAuth(); // Now this will reflect the user's login state
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [rating, setRating] = useState(1);
@@ -55,41 +57,45 @@ function CommentsPage() {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Product Comments</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <textarea
-          className="w-full border rounded p-2"
-          placeholder="Write your comment here..."
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        ></textarea>
+      {isLoggedIn ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <textarea
+            className="w-full border rounded p-2"
+            placeholder="Write your comment here..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          ></textarea>
 
-        <div className="flex items-center space-x-4">
-          <label className="font-semibold">Rating:</label>
-          <select
-            className="border rounded p-2"
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
+          <div className="flex items-center space-x-4">
+            <label className="font-semibold">Rating:</label>
+            <select
+              className="border rounded p-2"
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+            >
+              {[1, 2, 3, 4, 5].map((star) => (
+                <option key={star} value={star}>
+                  {star} Star{star > 1 ? "s" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="font-semibold">Upload a photo (optional):</label>
+            <input type="file" accept="image/*" onChange={handlePhotoChange} />
+          </div>
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            {[1, 2, 3, 4, 5].map((star) => (
-              <option key={star} value={star}>
-                {star} Star{star > 1 ? "s" : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="font-semibold">Upload a photo (optional):</label>
-          <input type="file" accept="image/*" onChange={handlePhotoChange} />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Submit Comment
-        </button>
-      </form>
+            Submit Comment
+          </button>
+        </form>
+      ) : (
+        <p className="text-red-500">You need to log in to add a comment.</p>
+      )}
 
       <div className="mt-6">
         <h2 className="text-2xl font-bold mb-4">All Comments</h2>

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { products } from "./data"; // Assuming you have a `data.js` file with product info.
+import { useAuth } from "./context/AuthContext";
 
-function ProductDetails() {
+function ProductDetails() { // Destructure isLoggedIn, user, and login from useAuth hook
   const { id } = useParams();
+  const { user, login, logout, error } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const product = products.find((prod) => prod.id === parseInt(id));
-
   const [quantity, setQuantity] = useState(1);
 
   const addToCart = () => {
@@ -35,41 +38,56 @@ function ProductDetails() {
     return <p>Product not found</p>;
   }
 
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-4xl font-bold mb-8 text-center">{product.name}</h1>
-      <div className="flex flex-col md:flex-row md:space-x-6">
-        <div className="w-full md:w-1/2 mb-6 md:mb-0">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-64 object-cover rounded-lg shadow-lg"
-          />
-        </div>
-        <div className="w-full md:w-1/2">
-          <p className="text-gray-600 mb-4 text-lg">{product.description}</p>
-          <p className="text-green-600 font-bold text-2xl">${product.price}</p>
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username.trim() && password.trim()) {
+      login(username, password);
+    }
+  };
 
-          {/* Quantity Selector */}
-          <div className="mt-4">
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="px-4 py-2 border rounded-md w-20 text-center"
-            />
-          </div>
+  return (
+    <div className="p-4 bg-gray-100 rounded shadow-md mb-6">
+      {user ? (
+        <div className="flex flex-col space-y-4">
+          <p className="text-green-600 font-semibold">
+            Welcome, {user.username}!
+          </p>
+          <p className="text-gray-700">Email: {user.email}</p>
+          <p className="text-gray-700">Address: {user.address}</p>
           
-          {/* Add to Cart Button */}
           <button
-            onClick={addToCart}
-            className="mt-6 px-8 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300"
+            onClick={logout}
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
           >
-            Add to Cart
+            Logout
           </button>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col space-y-4">
+          <input
+            type="text"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="border rounded p-2"
+          />
+          <input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border rounded p-2"
+          />
+          {error && <p className="text-red-500">{error}</p>}
+          <button
+            onClick={handleLogin}
+            disabled={!username.trim() || !password.trim()}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            Login
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,44 +1,41 @@
 import React, { createContext, useContext, useState } from "react";
 
+// Create Account Context
 const AccountContext = createContext();
 
-export const useAccount = () => {
-  return useContext(AccountContext);
-};
-
-export const AccountProvider = ({ children }) => {
+// Account Provider to wrap the app with authentication logic
+export function AccountProvider({ children }) {
   const [account, setAccount] = useState({
-    username: "",
-    shippingAddress: "",
     isAnonymous: true,
+    username: "",
   });
 
-  const createAccount = (username, shippingAddress) => {
-    setAccount({
-      username,
-      shippingAddress,
-      isAnonymous: false,
-    });
+  // Register function
+  const register = (username, password, email, name) => {
+    // Implement registration logic (e.g., save user to backend)
+    setAccount({ isAnonymous: false, username });
+    console.log("User Registered:", username);
   };
 
-  const updateAccount = (shippingAddress) => {
-    setAccount((prevAccount) => ({
-      ...prevAccount,
-      shippingAddress,
-    }));
+  // Login function
+  const login = (username, password) => {
+    // Implement login logic (e.g., authenticate with backend)
+    setAccount({ isAnonymous: false, username });
+    console.log("User Logged In:", username);
   };
 
+  // Logout function
   const logout = () => {
-    setAccount({
-      username: "",
-      shippingAddress: "",
-      isAnonymous: true,
-    });
+    setAccount({ isAnonymous: true, username: "" });
+    console.log("User Logged Out");
   };
 
   return (
-    <AccountContext.Provider value={{ account, createAccount, updateAccount, logout }}>
+    <AccountContext.Provider value={{ account, login, register, logout }}>
       {children}
     </AccountContext.Provider>
   );
-};
+}
+
+// Hook to use account context
+export const useAccount = () => useContext(AccountContext);

@@ -1,137 +1,141 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "./context/AuthContext";
-import { useAccount } from "./context/AccountContext";
+import React, { useState } from "react";
+import { useAuth } from "../src/context/AuthContext"; // Import the useAuth hook
 
 function Account() {
-  const { user } = useAuth();
-  const { account, createAccount, updateAccount, logout } = useAccount();
-  const [username, setUsername] = useState(account.username || "");
-  const [email, setEmail] = useState(account.email || "");
-  const [phoneNumber, setPhoneNumber] = useState(account.phoneNumber || "");
-  const [shippingAddress, setShippingAddress] = useState(account.shippingAddress || "");
-  const [password, setPassword] = useState(account.password || "");
+  const { user, login, register, logout, error, isLoggedIn } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
 
-  useEffect(() => {
-    setUsername(account.username || "");
-    setEmail(account.email || "");
-    setPhoneNumber(account.phoneNumber || "");
-    setShippingAddress(account.shippingAddress || "");
-    setPassword(account.password || "");
-  }, [account]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const handleCreateAccount = () => {
-    if (username.trim() && email.trim() && shippingAddress.trim() && password.trim()) {
-      createAccount(username, email, phoneNumber, shippingAddress, password);
+    if (isRegistering) {
+      // Register the user
+      register(username, password, name, email, address);
+    } else {
+      // Login the user
+      login(username, password);
     }
-  };
-
-  const handleUpdateAccount = () => {
-    if (shippingAddress.trim() || email.trim() || phoneNumber.trim() || password.trim()) {
-      updateAccount(shippingAddress, email, phoneNumber, password);
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
   };
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">
-        {account.isAnonymous ? "Create Account or Continue Shopping" : "Edit Your Account"}
+        {isRegistering ? "Register" : "Login"} to Your Account
       </h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {isRegistering && (
+          <>
+            <div>
+              <label className="block text-gray-700">Username</label>
+              <input
+                type="text"
+                className="w-full border rounded p-2"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Name</label>
+              <input
+                type="text"
+                className="w-full border rounded p-2"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Email</label>
+              <input
+                type="email"
+                className="w-full border rounded p-2"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Address</label>
+              <input
+                type="text"
+                className="w-full border rounded p-2"
+                placeholder="Enter your address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Password</label>
+              <input
+                type="password"
+                className="w-full border rounded p-2"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </>
+        )}
 
-      {account.isAnonymous ? (
-        <div>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="text"
-            placeholder="Shipping Address"
-            value={shippingAddress}
-            onChange={(e) => setShippingAddress(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
+        {!isRegistering && (
+          <>
+            <div>
+              <label className="block text-gray-700">Username</label>
+              <input
+                type="text"
+                className="w-full border rounded p-2"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700">Password</label>
+              <input
+                type="password"
+                className="w-full border rounded p-2"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          {isRegistering ? "Register" : "Login"}
+        </button>
+      </form>
+
+      <div className="mt-4">
+        <button
+          onClick={() => setIsRegistering(!isRegistering)}
+          className="text-blue-600 hover:underline"
+        >
+          {isRegistering
+            ? "Already have an account? Login"
+            : "Don't have an account? Register"}
+        </button>
+      </div>
+
+      {error && <p className="text-red-600 mt-4">{error}</p>}
+      {isLoggedIn && (
+        <div className="mt-4">
+          <h2>Welcome, {user.username}!</h2>
           <button
-            onClick={handleCreateAccount}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={logout}
+            className="text-blue-600 hover:underline mt-2"
           >
-            Create Account
-          </button>
-        </div>
-      ) : (
-        <div>
-          <input
-            type="text"
-            placeholder="Shipping Address"
-            value={shippingAddress}
-            onChange={(e) => setShippingAddress(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="email"
-            placeholder="Update Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="tel"
-            placeholder="Update Phone Number"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <input
-            type="password"
-            placeholder="Change Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border rounded p-2 mb-4 w-full"
-          />
-          <button
-            onClick={handleUpdateAccount}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Update Account
+            Logout
           </button>
         </div>
       )}
-
-      <div className="mt-6">
-        <button
-          onClick={handleLogout}
-          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-        >
-          Logout
-        </button>
-      </div>
     </div>
   );
 }
