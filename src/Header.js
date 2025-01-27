@@ -1,9 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAccount } from "./context/AccountContext"; // Importing the context
+import { useAccount } from "./context/AccountContext";
+import { useAuth } from "../src/context/AuthContext";  // Importing the context
 
 function Header() {
-  const { account, logout } = useAccount(); // Accessing account and logout from context
+  const { user, isLoggedIn} = useAuth();
+  const { account, logout} = useAccount();
+   // Accessing account and logout from context
 
   // Handle logout functionality
   const handleLogout = (e) => {
@@ -14,11 +17,30 @@ function Header() {
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
+        {/* Logo Section */}
         <h1 className="text-3xl font-extrabold tracking-wide">
           <Link to="/" className="hover:text-yellow-400 transition duration-200 ease-in-out">
             QuickBasket
           </Link>
         </h1>
+
+        {/* Welcome Message Section */}
+        <div className="hidden md:block text-yellow-400 font-semibold text-lg">
+          {isLoggedIn ? (
+            <span>Welcome, {user.username}!</span>
+          ) : (
+            <Link
+              to="/login"
+              className="hover:text-yellow-400 transition duration-200 ease-in-out transform hover:scale-105"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      </div>
+
+      <div className="container mx-auto flex justify-between items-center mt-4">
+        {/* Navigation Links */}
         <div className="space-x-8 text-lg font-semibold">
           <Link
             to="/"
@@ -45,18 +67,7 @@ function Header() {
             Comments
           </Link>
 
-          {/* Display logout link only if the user is logged in */}
-          {account.isAnonymous ? (
-            <Link
-              to="/login"
-              className="hover:text-yellow-400 transition duration-200 ease-in-out transform hover:scale-105"
-            >
-              Login
-            </Link>
-          ) : (
-            <span className="text-yellow-400">Welcome, {account.username}</span>
-          )}
-
+          {/* Logout Link */}
           {!account.isAnonymous && (
             <Link
               to="/"
