@@ -52,8 +52,7 @@ function Account() {
           <h1 className="text-3xl font-bold">Welcome, {user.username}!</h1>
           <div className="mt-4">
             <p>Name: {user.name}</p>
-            <p>Email: {user.email}</p>
-            <p>Address: {user.address}</p>
+      
             <button
               onClick={logout}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 mt-4"
@@ -65,12 +64,7 @@ function Account() {
       )}
 
       {/* Additional "Our Products" section or any other content you need */}
-      {user && (
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold">Our Products</h2>
-          {/* Products content here */}
-        </div>
-      )}
+     
     </div>
   );
 }
