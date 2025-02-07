@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+
 
 function ShoppingCart() {
   const [cart, setCart] = useState([]);
   const [error, setError] = useState(null);
   const userId = 1; // Replace with actual user ID
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     fetch(`http://localhost/sem2/assignment1/shopping-website/src/cart.php?user_id=${userId}`)
@@ -87,9 +90,12 @@ function ShoppingCart() {
               Total: $
               {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
             </p>
-            <button className="mt-4 px-6 py-2 bg-green-600 text-white rounded-full">
-              Checkout
-            </button>
+            <button
+        onClick={() => navigate("/Checkout")}
+        className="mt-4 px-6 py-2 bg-green-600 text-white rounded-full"
+      >
+        Checkout
+      </button>
           </div>
         </div>
       )}

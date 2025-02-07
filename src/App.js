@@ -11,6 +11,7 @@ import ProductDetails from "./ProductDetails";
 import { AuthProvider } from "./context/AuthContext";  // Import the authentication provider
 import Login from "./components/Login";  // Import the login component
 import { AccountProvider, useAccount } from './context/AccountContext'; // Import useAccount hook
+import CheckoutPage from "./CheckoutPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<ShoppingCart />} />
                 <Route path="/comments" element={<Comments />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
               </Routes>
             </div>
           </CartProvider>
