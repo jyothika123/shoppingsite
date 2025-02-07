@@ -8,6 +8,15 @@ function ProductList() {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost/sem2/assignment1/shopping-website/src/get_products.php")
+      .then((response) => response.json())
+      .then((data) => setProducts(data))
+      .catch((error) => console.error("Error fetching products:", error));
+  }, []);
+
   // State to manage quantity for each product
   const [quantities, setQuantities] = useState(
     products.reduce((acc, product) => {
@@ -37,26 +46,35 @@ function ProductList() {
   }, [cart]);
 
   const addToCart = (product, quantity) => {
+    console.log("prod",product.id,quantity);
     if (quantity <= 0) return; // Prevent adding 0 or negative quantity
-    
-    const updatedProduct = { ...product, quantity };
-    const existingProduct = cart.find((item) => item.id === product.id);
-
-    if (existingProduct) {
-      // Update quantity if product is already in the cart
-      const updatedCart = cart.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      );
-      setCart(updatedCart);
-    } else {
-      // Add new product with selected quantity
-      const updatedCart = [...cart, updatedProduct];
-      setCart(updatedCart);
-    }
+  
+    const userId = 1; // Assuming user ID is 1 (modify as needed)
+  console.log("prod",product.id,quantity);
+    fetch("http://localhost/sem2/assignment1/shopping-website/src/add_to_cart.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        product_id: product.id,
+        quantity: quantity,
+        user_id: userId,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Add to cart response:", data);
+        if (data.message) {
+          // Update local state to reflect that the product is in the cart
+          setAddedToCart((prevState) => ({
+            ...prevState,
+            [product.id]: true, // Mark this product as added
+          }));
+        } else {
+          alert("Error adding product to cart");
+        }
+      })
+      .catch((error) => console.error("Error:", error));
   };
-
   // Handle change in quantity for each product
   const handleQuantityChange = (id, value) => {
     setQuantities((prevQuantities) => ({
@@ -72,9 +90,9 @@ function ProductList() {
         {products.map((product) => (
           <div key={product.id} className="border p-4 rounded-lg shadow-lg hover:shadow-xl">
             <img
-              src={product.image}
+              src={`/images/`+product.image}
               alt={product.name}
-              className="w-full h-48 object-cover mb-4 rounded-lg"
+              className="w-full h-48 object-cover mb-4 ro unded-lg"
             />
             <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
             <p className="text-gray-600 mb-4">{product.description}</p>
